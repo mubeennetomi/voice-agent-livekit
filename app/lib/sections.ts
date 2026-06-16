@@ -11,6 +11,8 @@ import {
   REASONING_EFFORTS,
   INTEGRATIONS,
   PIPELINE_MODES,
+  INTERRUPTION_DURATIONS,
+  INTERRUPTION_WORDS,
 } from "./agentConfig";
 
 export type FieldKind = "textarea" | "toggle" | "select" | "modelselect" | "voice" | "subhead";
@@ -114,11 +116,17 @@ export const SECTION_GROUPS: Group[] = [
       {
         id: "bargein",
         title: "Barge-in",
-        desc: "Control whether the caller can interrupt the agent while it's speaking.",
+        desc: "Control whether and how the caller can interrupt the agent while it's speaking.",
         icon: "hand",
         fields: [
           { key: "allowInterruptions", label: "Allow interruptions", kind: "toggle",
             help: "When on, the caller can talk over the greeting and responses." },
+          { key: "minInterruptionDuration", label: "Min interruption duration", kind: "select",
+            options: INTERRUPTION_DURATIONS,
+            help: "How long the caller must speak before the agent yields. Lower = fewer dropped words when barging in, but more false triggers." },
+          { key: "minInterruptionWords", label: "Min interruption words", kind: "select",
+            options: INTERRUPTION_WORDS,
+            help: "Require this many recognized words before treating speech as an interruption." },
         ],
       },
     ],

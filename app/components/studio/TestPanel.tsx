@@ -22,6 +22,7 @@ import {
 } from "../../lib/agentConfig";
 
 type Line = { id: string; who: string; agent: boolean; text: string; t: number };
+type Tab = "details" | "transcript" | "samples";
 
 function stateLabel(s: string): string {
   switch (s) {
@@ -33,12 +34,11 @@ function stateLabel(s: string): string {
     default: return s;
   }
 }
-
 function labelOf(options: { value: string; label: string }[], v: string) {
   return options.find((o) => o.value === v)?.label ?? v;
 }
 
-/* ---- Agent configuration + enhancements readout (always on top) ---- */
+/* ---- Agent configuration + enhancements readout ---- */
 function ConfigReadout({ config }: { config: AgentConfig }) {
   const split = (id: string) => {
     const i = id.indexOf("/");
@@ -80,8 +80,97 @@ function ConfigReadout({ config }: { config: AgentConfig }) {
   );
 }
 
-/* ---- In-room bridge: live call bar + reports transcript upward ---- */
-function RoomBridge({ onLeave, onTranscript }: { onLeave: () => void; onTranscript: (lines: Line[]) => void }) {
+/* ---- Latency metrics (after a call) ---- */
+const METRIC_ROWS = [
+  { name: "end_of_utterance_delay", label: "End of turn" },
+  { name: "transcription_delay", label: "Transcription" },
+  { name: "ttft", label: "LLM first token" },
+  { name: "ttfb", label: "TTS first byte" },
+];
+function MetricsReadout({ room }: { room: string | null }) {
+  const [data, setData] = useState<RoomAggregate | null>(null);
+  useEffect(() => {
+    setData(null);
+    if (!room) return;
+    let cancelled = false; let tries = 0;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/metrics?room=${encodeURIComponent(room)}`);
+        const json = (await res.json()) as RoomAggregate;
+        if (cancelled) return;
+        setData(json);
+        if (json.turns === 0 && tries < 5) { tries++; setTimeout(poll, 1000); }
+      } catch { /* ignore */ }
+    };
+    poll();
+    return () => { cancelled = true; };
+  }, [room]);
+
+  if (!room) {
+    return <div className="readout"><div className="rr-sec">Latency</div><div className="tx-empty">Appears after a call ends.</div></div>;
+  }
+  const present = METRIC_ROWS.filter((r) => data?.metrics[r.name]);
+  return (
+    <div className="readout">
+      <div className="rr-sec">Latency · last call</div>
+      {!data && <div className="rr-row"><span className="rr-k">Loading…</span></div>}
+      {data && data.turns === 0 && (
+        <div className="rr-row"><span className="rr-k">No metrics reported</span><span className="rr-v rr-v--blank">—</span></div>
+      )}
+      {data && data.turns > 0 && (
+        <>
+          <div className="rr-row rr-row--total"><span className="rr-k">Turns</span><span className="rr-v">{data.turns}</span></div>
+          {present.map((r) => (
+            <div key={r.name} className="rr-row">
+              <span className="rr-k">{r.label}</span>
+              <span className="rr-v">{Math.round(data.metrics[r.name].avg)} ms</span>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ---- Transcript ---- */
+function TranscriptView({ lines, live }: { lines: Line[]; live: boolean }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [lines]);
+  return (
+    <div className="transcript" ref={scrollRef}>
+      {lines.length === 0 && <div className="tx-empty">The conversation will appear here once you start talking.</div>}
+      {lines.map((l) => (
+        <div key={l.id} className={"tline" + (l.agent ? " agent" : "")}>
+          <span className="who">{l.who}</span>
+          <span className="bubble">{l.text}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---- Voice samples (dummy) ---- */
+function VoiceSamples() {
+  const samples = ["Greeting", "Handoff message", "Confirmation"];
+  return (
+    <div className="samples">
+      <div className="tp-hint">Preview how the current voice sounds — no call needed.</div>
+      {samples.map((s) => (
+        <button key={s} className="sample" disabled>
+          <span className="sample__play"><Icon name="speaker" size={14} /></span>
+          <span className="sample__name">{s}</span>
+          <span className="sample__soon">Coming soon</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ---- In-room live header (merged calling) ---- */
+function LiveHeader({ onLeave, onTranscript }: { onLeave: () => void; onTranscript: (l: Line[]) => void }) {
   const { state, audioTrack, agentTranscriptions } = useVoiceAssistant();
   const { localParticipant } = useLocalParticipant();
   const { segments: userSegments } = useTrackTranscription({
@@ -106,100 +195,17 @@ function RoomBridge({ onLeave, onTranscript }: { onLeave: () => void; onTranscri
   }, [agentTranscriptions, userSegments, onTranscript]);
 
   return (
-    <div className="callbar live">
-      <div className="cb-live">
-        <div className="cb-avatar"><Icon name="bot" size={19} /></div>
-        <div className="cb-info">
-          <div className="cb-name">Voice agent</div>
-          <div className="cb-status">{stateLabel(state)} · {fmt(secs)}</div>
-        </div>
-        <DisconnectButton className="btn-call" onClick={onLeave} aria-label="End call">
-          <Icon name="phone" size={17} />
-        </DisconnectButton>
+    <div className="callhead callhead--live">
+      <div className="cb-avatar"><Icon name="bot" size={18} /></div>
+      <div className="cb-info">
+        <div className="cb-name">Voice agent</div>
+        <div className="cb-status">{stateLabel(state)} · {fmt(secs)}</div>
       </div>
-      <div className="cb-viz">
-        <BarVisualizer state={state} barCount={7} trackRef={audioTrack} options={{ minHeight: 8 }} />
-      </div>
+      <div className="cb-viz"><BarVisualizer state={state} barCount={5} trackRef={audioTrack} options={{ minHeight: 8 }} /></div>
+      <DisconnectButton className="btn-call" onClick={onLeave} aria-label="End call">
+        <Icon name="phone" size={16} />
+      </DisconnectButton>
       <RoomAudioRenderer />
-    </div>
-  );
-}
-
-/* ---- Transcript view (persists after the call) ---- */
-function TranscriptView({ lines, live }: { lines: Line[]; live: boolean }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  // Auto-scroll to the newest line as the transcript grows.
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [lines]);
-
-  return (
-    <div className="tx-col">
-      <div className="tx-col-head">
-        <span><Icon name="transcript" size={15} /> Transcript</span>
-        <span className={"tx-state" + (live ? " live" : "")}>{live ? "Live" : lines.length ? "Ended" : "Idle"}</span>
-      </div>
-      <div className="transcript" ref={scrollRef}>
-        {lines.length === 0 && <div className="tx-empty">The conversation will appear here once you start talking.</div>}
-        {lines.map((l) => (
-          <div key={l.id} className={"tline" + (l.agent ? " agent" : "")}>
-            <span className="who">{l.who}</span>
-            <span className="bubble">{l.text}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ---- Latency metrics (after a call) ---- */
-const METRIC_ROWS = [
-  { name: "end_of_utterance_delay", label: "End of turn" },
-  { name: "transcription_delay", label: "Transcription" },
-  { name: "ttft", label: "LLM first token" },
-  { name: "ttfb", label: "TTS first byte" },
-];
-
-function MetricsView({ room }: { room: string | null }) {
-  const [data, setData] = useState<RoomAggregate | null>(null);
-  useEffect(() => {
-    setData(null);
-    if (!room) return;
-    let cancelled = false; let tries = 0;
-    const poll = async () => {
-      try {
-        const res = await fetch(`/api/metrics?room=${encodeURIComponent(room)}`);
-        const json = (await res.json()) as RoomAggregate;
-        if (cancelled) return;
-        setData(json);
-        if (json.turns === 0 && tries < 5) { tries++; setTimeout(poll, 1000); }
-      } catch { /* ignore */ }
-    };
-    poll();
-    return () => { cancelled = true; };
-  }, [room]);
-
-  if (!room) return <div className="tx-empty" style={{ padding: 24 }}>Latency appears here after a call ends.</div>;
-  const present = METRIC_ROWS.filter((r) => data?.metrics[r.name]);
-  return (
-    <div className="readout">
-      <div className="rr-sec">Latency · last call</div>
-      {!data && <div className="rr-row"><span className="rr-k">Loading…</span></div>}
-      {data && data.turns === 0 && (
-        <div className="rr-row"><span className="rr-k">No metrics reported</span><span className="rr-v rr-v--blank">—</span></div>
-      )}
-      {data && data.turns > 0 && (
-        <>
-          <div className="rr-row rr-row--total"><span className="rr-k">Turns</span><span className="rr-v">{data.turns}</span></div>
-          {present.map((r) => (
-            <div key={r.name} className="rr-row">
-              <span className="rr-k">{r.label}</span>
-              <span className="rr-v">{Math.round(data.metrics[r.name].avg)} ms</span>
-            </div>
-          ))}
-        </>
-      )}
     </div>
   );
 }
@@ -214,19 +220,22 @@ export function TestPanel({ config, connectionDetails, connecting, error, endedR
   onDisconnected: () => void;
 }) {
   const [transcript, setTranscript] = useState<Line[]>([]);
-  const [tab, setTab] = useState<"transcript" | "metrics">("transcript");
+  const [tab, setTab] = useState<Tab>("details");
+  const [detailsDirty, setDetailsDirty] = useState(false);
   const live = !!connectionDetails;
+  const setLines = useMemo(() => (l: Line[]) => setTranscript(l), []);
 
-  const start = () => { setTranscript([]); onStart(); };
-  // useMemo so RoomBridge's onTranscript reference stays stable
-  const setLines = useMemo(() => (lines: Line[]) => setTranscript(lines), []);
+  // Call starts → show Transcript. Call ends → nudge Details with a dot.
+  useEffect(() => { if (live) setTab("transcript"); }, [live]);
+  useEffect(() => { if (endedRoom && !live) setDetailsDirty(true); }, [endedRoom, live]);
+
+  const openDetails = () => { setTab("details"); setDetailsDirty(false); };
+  const start = () => { setTranscript([]); setDetailsDirty(false); onStart(); };
 
   return (
     <aside className="testpane">
-      <div className="tp-tabs">
-        <button className="tp-tab" data-on={true}><Icon name="phone" size={15} /> Test call</button>
-      </div>
-      <div className="tp-body">
+      {/* Calling merged into the header */}
+      <div className="tp-callhead">
         {live ? (
           <LiveKitRoom
             token={connectionDetails!.participantToken}
@@ -236,36 +245,49 @@ export function TestPanel({ config, connectionDetails, connecting, error, endedR
             video={false}
             onDisconnected={onDisconnected}
           >
-            <RoomBridge onLeave={onDisconnected} onTranscript={setLines} />
+            <LiveHeader onLeave={onDisconnected} onTranscript={setLines} />
           </LiveKitRoom>
         ) : (
-          <div className="callbar">
-            <div className="cb-idle">
-              <div className="wave">{[12, 18, 8, 20, 14, 22, 10].map((h, i) => <i key={i} style={{ height: h }} />)}</div>
-              <div className="cb-idle__txt">Talk to your agent in a two-way WebRTC call. Allow mic access when prompted.</div>
-              <button className="btn-start" onClick={start} disabled={connecting}>
-                <Icon name="headset" size={16} /> {connecting ? "Connecting…" : endedRoom ? "Start again" : "Start call"}
-              </button>
-            </div>
+          <div className="callhead">
+            <span className="callhead__title"><Icon name="phone" size={15} /> Test call</span>
+            <button className="btn-start btn-start--sm" onClick={start} disabled={connecting}>
+              <Icon name="headset" size={15} /> {connecting ? "Connecting…" : endedRoom ? "Start again" : "Start call"}
+            </button>
           </div>
         )}
-        {error && <div className="tp-error">{error}</div>}
+      </div>
+      {error && <div className="tp-error">{error}</div>}
 
-        {/* Transcript + metrics appear once a call has started, above the
-            config readout so the transcript is visible right away. */}
-        {(live || endedRoom) && (
+      {/* Tabs + dummy Voice samples button */}
+      <div className="tp-tabrow">
+        <div className="tp-tabs2">
+          <button className="tp-tab2" data-on={tab === "details"} onClick={openDetails}>
+            Details {detailsDirty && <span className="tp-dot" aria-label="updated" />}
+          </button>
+          <button className="tp-tab2" data-on={tab === "transcript"} onClick={() => setTab("transcript")}>
+            Transcript
+          </button>
+        </div>
+        <button className="tp-samplesbtn" data-on={tab === "samples"} onClick={() => setTab("samples")}>
+          <Icon name="speaker" size={14} /> Voice samples
+        </button>
+      </div>
+
+      <div className="tp-body">
+        {tab === "details" && (
           <>
-            <div className="tp-subtabs">
-              <button className="tp-subtab" data-on={tab === "transcript"} onClick={() => setTab("transcript")}>Transcript</button>
-              <button className="tp-subtab" data-on={tab === "metrics"} onClick={() => setTab("metrics")}>Metrics</button>
-            </div>
-            {tab === "transcript"
-              ? <TranscriptView lines={transcript} live={live} />
-              : <MetricsView room={endedRoom} />}
+            <ConfigReadout config={config} />
+            <MetricsReadout room={endedRoom} />
           </>
         )}
+        {tab === "transcript" && <TranscriptView lines={transcript} live={live} />}
+        {tab === "samples" && <VoiceSamples />}
 
-        <ConfigReadout config={config} />
+        {endedRoom && !live && tab !== "details" && (
+          <button className="tp-detailscta" onClick={openDetails}>
+            View call details →
+          </button>
+        )}
       </div>
     </aside>
   );

@@ -17,6 +17,8 @@ export type AgentConfig = {
   instructions: string;
   welcomeMessage: string;
   allowInterruptions: boolean;
+  minInterruptionDuration: string; // seconds, as string for the dropdown
+  minInterruptionWords: string;
 
   // Models & Voice
   ttsModel: string;
@@ -94,6 +96,20 @@ export const PIPELINE_MODES: Option[] = [
   { value: "realtime", label: "Realtime integration (coming soon)" },
 ];
 
+// Barge-in: how aggressively the caller can interrupt the agent.
+export const INTERRUPTION_DURATIONS: Option[] = [
+  { value: "0.3", label: "0.3s — fast (fewer dropped words)" },
+  { value: "0.5", label: "0.5s — default" },
+  { value: "0.8", label: "0.8s — relaxed" },
+  { value: "1.0", label: "1.0s — very relaxed" },
+];
+export const INTERRUPTION_WORDS: Option[] = [
+  { value: "0", label: "Any sound (0 words)" },
+  { value: "1", label: "1 word" },
+  { value: "2", label: "2 words" },
+  { value: "3", label: "3 words" },
+];
+
 export const DEFAULT_INSTRUCTIONS = `You are a helpful, concise customer support voice agent for {Company}. Your job is to understand the customer's issue, gather the minimum necessary context, and either resolve the issue clearly or guide the customer to the right next step.
 
 Goals:
@@ -127,6 +143,8 @@ export const defaultAgentConfig: AgentConfig = {
   instructions: DEFAULT_INSTRUCTIONS,
   welcomeMessage: DEFAULT_WELCOME,
   allowInterruptions: true,
+  minInterruptionDuration: "0.5",
+  minInterruptionWords: "0",
   ttsModel: "cartesia/sonic-3",
   ttsVoice: "9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
   llmModel: "openai/gpt-5.2-chat-latest",

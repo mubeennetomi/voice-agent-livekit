@@ -201,6 +201,39 @@ textarea.inp { height: auto; padding: 9px 12px; line-height: 1.55; resize: verti
 .tp-tab[data-on="true"] { color: var(--foreground); border-bottom-color: var(--vc-accent); }
 .tp-body { flex: 1; overflow-y: auto; padding: 14px; }
 
+/* merged calling header */
+.tp-callhead { border-bottom: 1px solid var(--border); padding: 10px 14px; flex-shrink: 0; }
+.callhead { display: flex; align-items: center; gap: 10px; }
+.callhead__title { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: var(--foreground); }
+.callhead__title svg { color: var(--steel-light); }
+.callhead .btn-start--sm { margin-left: auto; }
+.btn-start--sm { padding: 8px 16px; font-size: 13px; border-radius: 9px; }
+.callhead--live { display: flex; align-items: center; gap: 10px; }
+.callhead--live .cb-viz { padding: 0; flex: 1; min-width: 0; }
+.callhead--live .cb-viz .lk-audio-bar-visualizer { height: 24px; }
+
+/* tab row + dummy samples button */
+.tp-tabrow { display: flex; align-items: center; justify-content: space-between; padding: 0 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.tp-tabs2 { display: flex; gap: 4px; }
+.tp-tab2 { background: none; border: 0; border-bottom: 2px solid transparent; padding: 11px 10px; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--steel-light); cursor: pointer; display: inline-flex; align-items: center; }
+.tp-tab2[data-on="true"] { color: var(--foreground); border-bottom-color: var(--vc-accent); }
+.tp-dot { width: 7px; height: 7px; border-radius: 50%; background: #2f6fed; display: inline-block; margin-left: 6px; }
+.tp-samplesbtn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 11px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--steel); cursor: pointer; }
+.tp-samplesbtn:hover { background: var(--steel-blue-15); }
+.tp-samplesbtn[data-on="true"] { background: var(--steel-blue-15); color: var(--foreground); border-color: var(--steel-blue-60); }
+
+/* "view call details" CTA after a call */
+.tp-detailscta { width: 100%; margin-top: 14px; background: var(--steel-blue-15); border: 1px solid var(--border); border-radius: 10px; padding: 11px; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--foreground); cursor: pointer; }
+.tp-detailscta:hover { background: var(--steel-blue-30); }
+
+/* dummy voice samples */
+.samples { display: flex; flex-direction: column; gap: 8px; }
+.tp-hint { font-size: 12.5px; color: var(--steel-light); margin-bottom: 6px; }
+.sample { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 10px; background: #fff; font-family: inherit; text-align: left; cursor: default; }
+.sample__play { width: 28px; height: 28px; border-radius: 50%; background: var(--steel-blue-15); color: var(--steel); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sample__name { font-size: 13px; font-weight: 600; color: var(--foreground); }
+.sample__soon { margin-left: auto; font-size: 11px; color: var(--steel-ultralight); }
+
 .callbar { border: 1px dashed var(--steel-blue-60); border-radius: 14px; background: #fff; overflow: hidden; margin-bottom: 14px; transition: background 240ms, border-color 240ms; }
 .callbar.live { background: var(--steel-blue-15); border-style: solid; border-color: var(--steel-blue-60); }
 .cb-idle { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; padding: 26px 18px; }

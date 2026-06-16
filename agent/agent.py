@@ -219,6 +219,14 @@ async def entrypoint(ctx: JobContext):
     instructions = cfg.get("instructions") or DEFAULT_INSTRUCTIONS
     welcome = cfg.get("welcomeMessage") or DEFAULT_WELCOME
     allow_interruptions = cfg.get("allowInterruptions", True)
+    try:
+        min_interruption_duration = float(cfg.get("minInterruptionDuration") or 0.5)
+    except (TypeError, ValueError):
+        min_interruption_duration = 0.5
+    try:
+        min_interruption_words = int(cfg.get("minInterruptionWords") or 0)
+    except (TypeError, ValueError):
+        min_interruption_words = 0
 
     tts_model = cfg.get("ttsModel") or "cartesia/sonic-3"
     tts_voice = cfg.get("ttsVoice") or "9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"
@@ -251,6 +259,9 @@ async def entrypoint(ctx: JobContext):
         turn_handling=TurnHandlingOptions(turn_detection=MultilingualModel()),
         vad=ctx.proc.userdata["vad"],
         preemptive_generation=True,
+        allow_interruptions=allow_interruptions,
+        min_interruption_duration=min_interruption_duration,
+        min_interruption_words=min_interruption_words,
     )
 
     # Report metrics to the web app (in addition to logging them).
