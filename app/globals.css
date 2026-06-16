@@ -217,8 +217,17 @@ textarea.inp { height: auto; padding: 9px 12px; line-height: 1.55; resize: verti
 
 .wave { display: flex; align-items: flex-end; gap: 3px; height: 24px; }
 .wave i { width: 3px; background: var(--steel-blue); border-radius: 2px; display: block; }
-.cb-viz { padding: 0 12px 12px; }
-.cb-viz .lk-audio-bar { background: var(--vc-accent); }
+/* LiveKitRoom wraps children in .lk-room-container which stretches full height;
+   collapse it so our call bar flows normally and doesn't leave a big gap. */
+.testpane .lk-room-container { display: contents; }
+.cb-viz { padding: 0 12px 12px; height: 44px; }
+.cb-viz .lk-audio-bar-visualizer { height: 32px; background: transparent; gap: 4px; }
+.cb-viz .lk-audio-bar { background: var(--vc-accent); width: 4px; }
+
+/* sub-tabs (Transcript / Metrics) */
+.tp-subtabs { display: flex; gap: 6px; margin: 14px 0 0; border-bottom: 1px solid var(--border); }
+.tp-subtab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 10px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--steel-light); cursor: pointer; }
+.tp-subtab[data-on="true"] { color: var(--foreground); border-bottom-color: var(--vc-accent); }
 
 /* transcript */
 .tx-col { border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-top: 14px; }
@@ -239,12 +248,15 @@ textarea.inp { height: auto; padding: 9px 12px; line-height: 1.55; resize: verti
 .tline:not(.agent) .bubble { background: #fff; color: var(--foreground); border: 1px solid var(--steel-blue-60); border-bottom-right-radius: 4px; }
 
 /* readout (metrics) */
-.readout { background: var(--steel-blue-15); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; font-family: var(--font-mono); }
+.readout { background: var(--steel-blue-15); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-top: 14px; font-family: var(--font-mono); }
 .rr-sec { color: var(--foreground); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 9px; }
 .rr-div { height: 1px; background: var(--border); margin: 15px 0; }
-.rr-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 3.5px 0; line-height: 1.5; }
-.rr-k { color: var(--steel-light); font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
-.rr-v { color: var(--turquoise-ultradark); font-size: 12.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; text-align: right; }
+.rr-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 3px 0; line-height: 1.5; position: relative; }
+.rr-row--indent { padding-left: 16px; }
+.rr-row--indent::before { content: ""; position: absolute; left: 2px; top: 4px; bottom: 4px; width: 2px; background: var(--steel-blue-60); border-radius: 1px; }
+.rr-k { color: var(--steel-light); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
+.rr-v { color: var(--turquoise-ultradark); font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; text-align: right; overflow: hidden; text-overflow: ellipsis; }
+.rr-v--on { color: var(--turquoise-dark); }
 .rr-v--blank { color: var(--steel-ultralight); font-weight: 600; }
 .rr-row--total .rr-k { color: var(--foreground); font-weight: 700; }
 .rr-row--total .rr-v { color: var(--foreground); font-size: 13.5px; }

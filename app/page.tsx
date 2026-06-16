@@ -119,6 +119,7 @@ export default function Page() {
             <SectionEditor section={section} eyebrow={eyebrow} values={values} setVal={setVal} />
           </div>
           <TestPanel
+            config={values}
             connectionDetails={connectionDetails}
             connecting={connecting}
             error={error}
