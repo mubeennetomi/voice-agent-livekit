@@ -38,56 +38,26 @@ function labelOf(options: { value: string; label: string }[], v: string) {
   return options.find((o) => o.value === v)?.label ?? v;
 }
 
-/* ---- Agent configuration + enhancements readout ---- */
-function ConfigReadout({ config }: { config: AgentConfig }) {
-  const split = (id: string) => {
-    const i = id.indexOf("/");
-    return i === -1 ? ["", id] : [id.slice(0, i), id.slice(i + 1)];
-  };
-  const [sttP, sttM] = split(config.sttModel);
-  const [llmP, llmM] = split(config.llmModel);
-  const [ttsP, ttsM] = split(config.ttsModel);
-  const voiceLabel = config.ttsVoice
-    ? (VOICES_BY_PROVIDER[ttsP]?.find((v) => v.value === config.ttsVoice)?.label ?? config.ttsVoice)
-    : "Provider default";
-  const nc = config.noiseCancellation;
-
-  const Row = ({ k, v, indent, on }: { k: string; v: string; indent?: boolean; on?: boolean }) => (
-    <div className={"rr-row" + (indent ? " rr-row--indent" : "")}>
-      <span className="rr-k">{k}</span>
-      <span className={"rr-v" + (on ? " rr-v--on" : "")}>{v}</span>
-    </div>
-  );
-
-  return (
-    <div className="readout">
-      <div className="rr-sec">Agent configuration</div>
-      <Row k="VAD" v="Silero" />
-      <Row k="Speech-to-text" v={sttP || "—"} />
-      <Row k="Model" v={sttM} indent />
-      <Row k="Language model" v={llmP || "—"} />
-      <Row k="Model" v={llmM} indent />
-      <Row k="Text-to-speech" v={ttsP || "—"} />
-      <Row k="Model" v={ttsM} indent />
-      <Row k="Voice" v={voiceLabel} indent />
-      <div className="rr-div" />
-      <div className="rr-sec">Enhancements</div>
-      <Row k="Turn detection" v="Multilingual" on />
-      <Row k="Interruptions" v={config.allowInterruptions ? "On" : "Off"} on={config.allowInterruptions} />
-      <Row k="Noise cancellation" v={nc === "none" ? "Off" : labelOf(NOISE_CANCELLATION, nc)} on={nc !== "none"} />
-      <Row k="Background audio" v={labelOf(BACKGROUND_AUDIO, config.backgroundAudio)} />
-    </div>
-  );
-}
-
-/* ---- Latency metrics (after a call) ---- */
+/* ---- Call details: agent config + enhancements + latency, in one card ---- */
 const METRIC_ROWS = [
   { name: "end_of_utterance_delay", label: "End of turn" },
   { name: "transcription_delay", label: "Transcription" },
   { name: "ttft", label: "LLM first token" },
   { name: "ttfb", label: "TTS first byte" },
 ];
-function MetricsReadout({ room }: { room: string | null }) {
+
+function DetailRow({ k, v, indent, on, blank, total }: {
+  k: string; v: string; indent?: boolean; on?: boolean; blank?: boolean; total?: boolean;
+}) {
+  return (
+    <div className={"rr-row" + (indent ? " rr-row--indent" : "") + (total ? " rr-row--total" : "")}>
+      <span className="rr-k">{k}</span>
+      <span className={"rr-v" + (on ? " rr-v--on" : "") + (blank ? " rr-v--blank" : "")}>{v}</span>
+    </div>
+  );
+}
+
+function CallDetails({ config, room }: { config: AgentConfig; room: string | null }) {
   const [data, setData] = useState<RoomAggregate | null>(null);
   useEffect(() => {
     setData(null);
@@ -106,27 +76,60 @@ function MetricsReadout({ room }: { room: string | null }) {
     return () => { cancelled = true; };
   }, [room]);
 
-  if (!room) {
-    return <div className="readout"><div className="rr-sec">Latency</div><div className="tx-empty">Appears after a call ends.</div></div>;
-  }
-  const present = METRIC_ROWS.filter((r) => data?.metrics[r.name]);
+  const split = (id: string) => {
+    const i = id.indexOf("/");
+    return i === -1 ? ["", id] : [id.slice(0, i), id.slice(i + 1)];
+  };
+  const [sttP, sttM] = split(config.sttModel);
+  const [llmP, llmM] = split(config.llmModel);
+  const [ttsP, ttsM] = split(config.ttsModel);
+  const voiceLabel = config.ttsVoice
+    ? (VOICES_BY_PROVIDER[ttsP]?.find((v) => v.value === config.ttsVoice)?.label ?? config.ttsVoice)
+    : "Provider default";
+  const nc = config.noiseCancellation;
+
+  const configSection = (
+    <>
+      <div className="rr-sec">Agent configuration</div>
+      <DetailRow k="VAD" v="Silero" />
+      <DetailRow k="Speech-to-text" v={sttP || "—"} />
+      <DetailRow k="Model" v={sttM} indent />
+      <DetailRow k="Language model" v={llmP || "—"} />
+      <DetailRow k="Model" v={llmM} indent />
+      <DetailRow k="Text-to-speech" v={ttsP || "—"} />
+      <DetailRow k="Model" v={ttsM} indent />
+      <DetailRow k="Voice" v={voiceLabel} indent />
+      <div className="rr-div" />
+      <div className="rr-sec">Enhancements</div>
+      <DetailRow k="Turn detection" v="Multilingual" on />
+      <DetailRow k="Interruptions" v={config.allowInterruptions ? "On" : "Off"} on={config.allowInterruptions} />
+      <DetailRow k="Noise cancellation" v={nc === "none" ? "Off" : labelOf(NOISE_CANCELLATION, nc)} on={nc !== "none"} />
+      <DetailRow k="Background audio" v={labelOf(BACKGROUND_AUDIO, config.backgroundAudio)} />
+    </>
+  );
+
+  const hasMetrics = !!data && data.turns > 0;
+  const overall = hasMetrics
+    ? METRIC_ROWS.reduce((sum, r) => sum + (data!.metrics[r.name]?.avg ?? 0), 0)
+    : 0;
+  const latencySection = (
+    <>
+      <div className="rr-sec">Latency{hasMetrics ? " · last call" : ""}</div>
+      {METRIC_ROWS.map((r) => {
+        const m = data?.metrics[r.name];
+        return <DetailRow key={r.name} k={r.label} v={m ? Math.round(m.avg) + " ms" : "—"} blank={!m} />;
+      })}
+      <DetailRow k="Overall" v={overall > 0 ? Math.round(overall) + " ms" : "—"} total blank={overall <= 0} />
+    </>
+  );
+
+  // Once a call has ended, surface latency at the top.
   return (
     <div className="readout">
-      <div className="rr-sec">Latency · last call</div>
-      {!data && <div className="rr-row"><span className="rr-k">Loading…</span></div>}
-      {data && data.turns === 0 && (
-        <div className="rr-row"><span className="rr-k">No metrics reported</span><span className="rr-v rr-v--blank">—</span></div>
-      )}
-      {data && data.turns > 0 && (
-        <>
-          <div className="rr-row rr-row--total"><span className="rr-k">Turns</span><span className="rr-v">{data.turns}</span></div>
-          {present.map((r) => (
-            <div key={r.name} className="rr-row">
-              <span className="rr-k">{r.label}</span>
-              <span className="rr-v">{Math.round(data.metrics[r.name].avg)} ms</span>
-            </div>
-          ))}
-        </>
+      {room ? (
+        <>{latencySection}<div className="rr-div" />{configSection}</>
+      ) : (
+        <>{configSection}<div className="rr-div" />{latencySection}</>
       )}
     </div>
   );
@@ -274,12 +277,7 @@ export function TestPanel({ config, connectionDetails, connecting, error, endedR
       </div>
 
       <div className="tp-body">
-        {tab === "details" && (
-          <>
-            <ConfigReadout config={config} />
-            <MetricsReadout room={endedRoom} />
-          </>
-        )}
+        {tab === "details" && <CallDetails config={config} room={endedRoom} />}
         {tab === "transcript" && <TranscriptView lines={transcript} live={live} />}
         {tab === "samples" && <VoiceSamples />}
 
