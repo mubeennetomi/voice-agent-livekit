@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  addSamples(body.room, body.samples);
+  await addSamples(body.room, body.samples);
   return NextResponse.json({ ok: true, received: body.samples.length });
 }
 
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
   if (!room) {
     return NextResponse.json({ error: "Missing ?room=" }, { status: 400 });
   }
-  return NextResponse.json(getAggregate(room), {
+  return NextResponse.json(await getAggregate(room), {
     headers: { "Cache-Control": "no-store" },
   });
 }
