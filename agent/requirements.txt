@@ -1,0 +1,7 @@
+# Mirror the versions your sandbox uses if you hit any import errors.
+livekit-agents[turn-detector]
+livekit-plugins-silero
+livekit-plugins-turn-detector
+livekit-plugins-ai-coustics
+python-dotenv
+aiohttp
