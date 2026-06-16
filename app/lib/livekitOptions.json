@@ -1,0 +1,872 @@
+{
+  "tts_models": [
+    {
+      "value": "cartesia/sonic-latest",
+      "label": "Cartesia Sonic Latest"
+    },
+    {
+      "value": "cartesia/sonic-3.5",
+      "label": "Cartesia Sonic 3.5"
+    },
+    {
+      "value": "cartesia/sonic-3.5-2026-05-04",
+      "label": "Cartesia Sonic 3.5 (2026-05-04)"
+    },
+    {
+      "value": "rime/coda",
+      "label": "Rime Coda"
+    },
+    {
+      "value": "cartesia/sonic",
+      "label": "Cartesia Sonic"
+    },
+    {
+      "value": "cartesia/sonic-2",
+      "label": "Cartesia Sonic 2"
+    },
+    {
+      "value": "cartesia/sonic-3",
+      "label": "Cartesia Sonic 3"
+    },
+    {
+      "value": "cartesia/sonic-3-2025-10-27",
+      "label": "Cartesia Sonic 3 (2025-10-27)"
+    },
+    {
+      "value": "cartesia/sonic-3-2026-01-12",
+      "label": "Cartesia Sonic 3 (2026-01-12)"
+    },
+    {
+      "value": "cartesia/sonic-3-latest",
+      "label": "Cartesia Sonic 3 Latest"
+    },
+    {
+      "value": "cartesia/sonic-turbo",
+      "label": "Cartesia Sonic Turbo"
+    },
+    {
+      "value": "deepgram/aura-2",
+      "label": "Deepgram Aura-2"
+    },
+    {
+      "value": "elevenlabs/eleven_flash_v2",
+      "label": "ElevenLabs Eleven Flash v2"
+    },
+    {
+      "value": "elevenlabs/eleven_flash_v2_5",
+      "label": "ElevenLabs Eleven Flash v2.5"
+    },
+    {
+      "value": "elevenlabs/eleven_multilingual_v2",
+      "label": "ElevenLabs Eleven Multilingual v2"
+    },
+    {
+      "value": "elevenlabs/eleven_turbo_v2",
+      "label": "ElevenLabs Eleven Turbo v2"
+    },
+    {
+      "value": "elevenlabs/eleven_turbo_v2_5",
+      "label": "ElevenLabs Eleven Turbo v2.5"
+    },
+    {
+      "value": "elevenlabs/eleven_v3",
+      "label": "ElevenLabs Eleven v3"
+    },
+    {
+      "value": "inworld/inworld-tts-1",
+      "label": "Inworld Realtime TTS"
+    },
+    {
+      "value": "inworld/inworld-tts-1.5-max",
+      "label": "Inworld Realtime TTS 1.5 Max"
+    },
+    {
+      "value": "inworld/inworld-tts-1.5-mini",
+      "label": "Inworld Realtime TTS 1.5 Mini"
+    },
+    {
+      "value": "inworld/inworld-tts-2",
+      "label": "Inworld Realtime TTS 2.0"
+    },
+    {
+      "value": "inworld/inworld-tts-1-max",
+      "label": "Inworld Realtime TTS Max"
+    },
+    {
+      "value": "rime/arcana",
+      "label": "Rime Arcana"
+    },
+    {
+      "value": "rime/mist",
+      "label": "Rime Mist"
+    },
+    {
+      "value": "rime/mistv2",
+      "label": "Rime Mist v2"
+    },
+    {
+      "value": "rime/mistv3",
+      "label": "Rime Mist v3"
+    },
+    {
+      "value": "xai/tts-1",
+      "label": "xAI Text to Speech"
+    }
+  ],
+  "voices_by_provider": {
+    "cartesia": [
+      {
+        "value": "a167e0f3-df7e-4d52-a9c3-f949145efdab",
+        "label": "Blake — English (US)"
+      },
+      {
+        "value": "5c5ad5e7-1020-476b-8b91-fdcbe9cc313c",
+        "label": "Daniela — Spanish (Mexico)"
+      },
+      {
+        "value": "9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
+        "label": "Jacqueline — English (US)"
+      },
+      {
+        "value": "f31cc6a7-c1e8-4764-980c-60a361443dd1",
+        "label": "Olivia — English (Australia)"
+      },
+      {
+        "value": "a01c369f-6d2d-4185-bc20-b32c225eab70",
+        "label": "Fiona — English (UK)"
+      },
+      {
+        "value": "638efaaa-4d0c-442e-b701-3fae16aad012",
+        "label": "Sameer — English (India)"
+      },
+      {
+        "value": "6ccbfb76-1fc6-48f7-b71d-91ac6298247b",
+        "label": "Tessa — English (US)"
+      },
+      {
+        "value": "228fca29-3a0a-435c-8728-5cb483251068",
+        "label": "Kiefer — English (US)"
+      },
+      {
+        "value": "5cad89c9-d88a-4832-89fb-55f2f16d13d3",
+        "label": "Brandon — English (US)"
+      },
+      {
+        "value": "ec1e269e-9ca0-402f-8a18-58e0e022355a",
+        "label": "Ariana — English (US)"
+      },
+      {
+        "value": "cefcb124-080b-4655-b31f-932f3ee743de",
+        "label": "Elena (Narrator) — Spanish (Spain)"
+      },
+      {
+        "value": "846fa30b-6e1a-49b9-b7df-6be47092a09a",
+        "label": "Pablo — Spanish (Spain)"
+      },
+      {
+        "value": "bef2ba57-5c10-433b-b215-3bef35110a81",
+        "label": "Camila — Spanish (Spain)"
+      },
+      {
+        "value": "7b001dff-b8b2-4da7-92e4-5c794798effa",
+        "label": "Jorge — Spanish (Mexico)"
+      }
+    ],
+    "rime": [
+      {
+        "value": "adeline",
+        "label": "Adeline — English (US)"
+      },
+      {
+        "value": "akari",
+        "label": "Akari — Japanese"
+      },
+      {
+        "value": "amanecer",
+        "label": "Amanecer — Spanish (Colombia)"
+      },
+      {
+        "value": "aura",
+        "label": "Aura — German"
+      },
+      {
+        "value": "clementine",
+        "label": "Clementine — English (US)"
+      },
+      {
+        "value": "estela",
+        "label": "Estela — Portuguese (Brazil)"
+      },
+      {
+        "value": "fuzz",
+        "label": "Fuzz — English (UK)"
+      },
+      {
+        "value": "maddux",
+        "label": "Maddux — English (US)"
+      },
+      {
+        "value": "nacht",
+        "label": "Nacht — German"
+      },
+      {
+        "value": "ronan",
+        "label": "Ronan — English (Ireland)"
+      },
+      {
+        "value": "sakura",
+        "label": "Sakura — Japanese"
+      },
+      {
+        "value": "seraphine",
+        "label": "Seraphine — French"
+      },
+      {
+        "value": "taiyo",
+        "label": "Taiyo — Japanese"
+      },
+      {
+        "value": "trueno",
+        "label": "Trueno — Spanish (Colombia)"
+      },
+      {
+        "value": "violette",
+        "label": "Violette — French"
+      },
+      {
+        "value": "wawona",
+        "label": "Wawona — English (US)"
+      },
+      {
+        "value": "albion",
+        "label": "Albion — English (UK)"
+      },
+      {
+        "value": "luna",
+        "label": "Luna — English (US)"
+      },
+      {
+        "value": "lyra",
+        "label": "Lyra — English (US)"
+      },
+      {
+        "value": "nova",
+        "label": "Nova — Spanish (Colombia)"
+      },
+      {
+        "value": "celeste",
+        "label": "Celeste — English (US)"
+      },
+      {
+        "value": "marlu",
+        "label": "Marlu — English (Australia)"
+      },
+      {
+        "value": "vashti",
+        "label": "Vashti — English (UK)"
+      }
+    ],
+    "elevenlabs": [
+      {
+        "value": "Xb7hH8MSUJpSbSDYk0k2",
+        "label": "Alice — English (UK)"
+      },
+      {
+        "value": "iP95p4xoKVk53GoZ742B",
+        "label": "Chris — English (US)"
+      },
+      {
+        "value": "cjVigY5qzO86Huf0OWal",
+        "label": "Eric — English (US)"
+      },
+      {
+        "value": "cgSgspJ2msm6clMCkdW9",
+        "label": "Jessica — English (US)"
+      },
+      {
+        "value": "CwhRBWXzGAHq8TQ4Fs17",
+        "label": "Roger — English (US)"
+      },
+      {
+        "value": "EXAVITQu4vr4xnSDxMaL",
+        "label": "Sarah — English (US)"
+      },
+      {
+        "value": "FGY2WhTYpPnrIDTdsKH5",
+        "label": "Laura"
+      },
+      {
+        "value": "JBFqnCBsd6RMkjVDRZzb",
+        "label": "George"
+      },
+      {
+        "value": "TX3LPaxmHKxFdv7VOQHJ",
+        "label": "Liam"
+      },
+      {
+        "value": "XrExE9yKIg1WjnnlVkGX",
+        "label": "Matilda"
+      },
+      {
+        "value": "bIHbv24MWmeRgasZH58o",
+        "label": "Will"
+      },
+      {
+        "value": "onwK4e9ZLuTAKqWW03F9",
+        "label": "Daniel"
+      },
+      {
+        "value": "pqHfZKP75CvOlQylNhV4",
+        "label": "Bill"
+      }
+    ],
+    "xai": [
+      {
+        "value": "ara",
+        "label": "Ara — multilingual"
+      },
+      {
+        "value": "rex",
+        "label": "Rex — multilingual"
+      },
+      {
+        "value": "sal",
+        "label": "Sal — multilingual"
+      },
+      {
+        "value": "eve",
+        "label": "Eve — multilingual"
+      },
+      {
+        "value": "leo",
+        "label": "Leo — multilingual"
+      }
+    ],
+    "inworld": [
+      {
+        "value": "Alex",
+        "label": "Alex — English (US)"
+      },
+      {
+        "value": "Ashley",
+        "label": "Ashley — English (US)"
+      },
+      {
+        "value": "Loretta",
+        "label": "Loretta — English (US)"
+      },
+      {
+        "value": "Hank",
+        "label": "Hank — English (US)"
+      },
+      {
+        "value": "Evelyn",
+        "label": "Evelyn — English (US)"
+      },
+      {
+        "value": "Celeste",
+        "label": "Celeste — English (US)"
+      },
+      {
+        "value": "Pippa",
+        "label": "Pippa — English (Australia)"
+      },
+      {
+        "value": "Liam",
+        "label": "Liam — English (Australia)"
+      },
+      {
+        "value": "Graham",
+        "label": "Graham — English (UK)"
+      },
+      {
+        "value": "Olivia",
+        "label": "Olivia — English (UK)"
+      },
+      {
+        "value": "Priya",
+        "label": "Priya — English (India)"
+      },
+      {
+        "value": "Arjun",
+        "label": "Arjun — English (India)"
+      },
+      {
+        "value": "Sarah",
+        "label": "Sarah — English (US)"
+      },
+      {
+        "value": "James",
+        "label": "James — English (US)"
+      },
+      {
+        "value": "Mark",
+        "label": "Mark — English (US)"
+      }
+    ]
+  },
+  "llm_models": [
+    {
+      "value": "openai/chat-latest",
+      "label": "Azure ChatGPT Latest"
+    },
+    {
+      "value": "openai/gpt-oss-120b",
+      "label": "OpenAI GPT OSS 120B"
+    },
+    {
+      "value": "openai/gpt-4.1",
+      "label": "OpenAI GPT-4.1"
+    },
+    {
+      "value": "openai/gpt-4.1-mini",
+      "label": "OpenAI GPT-4.1 mini"
+    },
+    {
+      "value": "openai/gpt-4.1-nano",
+      "label": "OpenAI GPT-4.1 nano"
+    },
+    {
+      "value": "openai/gpt-4o",
+      "label": "OpenAI GPT-4o"
+    },
+    {
+      "value": "openai/gpt-4o-mini",
+      "label": "OpenAI GPT-4o mini"
+    },
+    {
+      "value": "openai/gpt-5",
+      "label": "OpenAI GPT-5"
+    },
+    {
+      "value": "openai/gpt-5-mini",
+      "label": "OpenAI GPT-5 mini"
+    },
+    {
+      "value": "openai/gpt-5-nano",
+      "label": "OpenAI GPT-5 nano"
+    },
+    {
+      "value": "openai/gpt-5.1",
+      "label": "OpenAI GPT-5.1"
+    },
+    {
+      "value": "openai/gpt-5.1-chat-latest",
+      "label": "OpenAI GPT-5.1 Chat"
+    },
+    {
+      "value": "openai/gpt-5.2",
+      "label": "OpenAI GPT-5.2"
+    },
+    {
+      "value": "openai/gpt-5.2-chat-latest",
+      "label": "OpenAI GPT-5.2 Chat"
+    },
+    {
+      "value": "openai/gpt-5.3-chat-latest",
+      "label": "OpenAI GPT-5.3 Chat"
+    },
+    {
+      "value": "openai/gpt-5.4",
+      "label": "OpenAI GPT-5.4"
+    },
+    {
+      "value": "openai/gpt-5.4-mini",
+      "label": "OpenAI GPT-5.4 mini"
+    },
+    {
+      "value": "openai/gpt-5.4-nano",
+      "label": "OpenAI GPT-5.4 nano"
+    },
+    {
+      "value": "openai/gpt-5.5",
+      "label": "OpenAI GPT-5.5"
+    },
+    {
+      "value": "google/gemini-2.5-flash",
+      "label": "Google Gemini 2.5 Flash"
+    },
+    {
+      "value": "google/gemini-2.5-flash-lite",
+      "label": "Google Gemini 2.5 Flash-Lite"
+    },
+    {
+      "value": "google/gemini-2.5-pro",
+      "label": "Google Gemini 2.5 Pro"
+    },
+    {
+      "value": "google/gemini-3-flash-preview",
+      "label": "Google Gemini 3 Flash"
+    },
+    {
+      "value": "google/gemini-3.1-flash-lite",
+      "label": "Google Gemini 3.1 Flash Lite"
+    },
+    {
+      "value": "google/gemini-3.1-pro-preview",
+      "label": "Google Gemini 3.1 Pro"
+    },
+    {
+      "value": "google/gemini-3.5-flash",
+      "label": "Google Gemini 3.5 Flash"
+    },
+    {
+      "value": "deepseek-ai/deepseek-v3",
+      "label": "DeepSeek DeepSeek-V3"
+    },
+    {
+      "value": "deepseek-ai/deepseek-v3.1",
+      "label": "DeepSeek DeepSeek-V3.1"
+    },
+    {
+      "value": "moonshotai/kimi-k2.5",
+      "label": "Moonshot AI Kimi K2.5"
+    },
+    {
+      "value": "xai/grok-4-1-fast-non-reasoning",
+      "label": "xAI Grok 4.1 Fast"
+    },
+    {
+      "value": "xai/grok-4-1-fast-reasoning",
+      "label": "xAI Grok 4.1 Fast Reasoning"
+    },
+    {
+      "value": "xai/grok-4.20-0309-non-reasoning",
+      "label": "xAI Grok 4.20"
+    },
+    {
+      "value": "xai/grok-4.20-multi-agent-0309",
+      "label": "xAI Grok 4.20 Multi-Agent"
+    },
+    {
+      "value": "xai/grok-4.20-0309-reasoning",
+      "label": "xAI Grok 4.20 Reasoning"
+    }
+  ],
+  "stt_models": [
+    {
+      "value": "deepgram/nova-3",
+      "label": "Deepgram Nova-3 (Monolingual)"
+    },
+    {
+      "value": "deepgram/nova-3-multi",
+      "label": "Deepgram Nova-3 (Multilingual)"
+    },
+    {
+      "value": "deepgram/nova-3-medical",
+      "label": "Deepgram Nova-3 Medical"
+    },
+    {
+      "value": "deepgram/nova-2",
+      "label": "Deepgram Nova-2"
+    },
+    {
+      "value": "deepgram/nova-2-conversationalai",
+      "label": "Deepgram Nova-2 Conversational AI"
+    },
+    {
+      "value": "deepgram/nova-2-medical",
+      "label": "Deepgram Nova-2 Medical"
+    },
+    {
+      "value": "deepgram/nova-2-phonecall",
+      "label": "Deepgram Nova-2 Phone Call"
+    },
+    {
+      "value": "deepgram/flux-general-en",
+      "label": "Deepgram Flux"
+    },
+    {
+      "value": "deepgram/flux-general-multi",
+      "label": "Deepgram Flux (Multilingual)"
+    },
+    {
+      "value": "assemblyai/u3-rt-pro",
+      "label": "AssemblyAI Universal-3 Pro Streaming"
+    },
+    {
+      "value": "assemblyai/universal-streaming",
+      "label": "AssemblyAI Universal-Streaming"
+    },
+    {
+      "value": "assemblyai/universal-streaming-multilingual",
+      "label": "AssemblyAI Universal-Streaming-Multilingual"
+    },
+    {
+      "value": "cartesia/ink-whisper",
+      "label": "Cartesia Ink Whisper"
+    },
+    {
+      "value": "cartesia/ink-2",
+      "label": "Cartesia Ink 2"
+    },
+    {
+      "value": "cartesia/ink-2-latest",
+      "label": "Cartesia Ink 2 Latest"
+    },
+    {
+      "value": "cartesia/ink-2-2026-04-15",
+      "label": "Cartesia Ink 2 (2026-04-15)"
+    },
+    {
+      "value": "elevenlabs/scribe_v2_realtime",
+      "label": "ElevenLabs Scribe v2 Realtime"
+    },
+    {
+      "value": "speechmatics/enhanced",
+      "label": "Speechmatics Enhanced"
+    },
+    {
+      "value": "speechmatics/standard",
+      "label": "Speechmatics Standard"
+    },
+    {
+      "value": "xai/stt-1",
+      "label": "xAI Speech to Text"
+    }
+  ],
+  "languages": [
+    {
+      "value": "en",
+      "label": "English"
+    },
+    {
+      "value": "en-US",
+      "label": "English (United States)"
+    },
+    {
+      "value": "en-AU",
+      "label": "English (Australia)"
+    },
+    {
+      "value": "en-GB",
+      "label": "English (United Kingdom)"
+    },
+    {
+      "value": "en-IN",
+      "label": "English (India)"
+    },
+    {
+      "value": "en-NZ",
+      "label": "English (New Zealand)"
+    },
+    {
+      "value": "es",
+      "label": "Spanish"
+    },
+    {
+      "value": "es-419",
+      "label": "Spanish (Latin America)"
+    },
+    {
+      "value": "fr",
+      "label": "French"
+    },
+    {
+      "value": "fr-CA",
+      "label": "French (Canada)"
+    },
+    {
+      "value": "de",
+      "label": "German"
+    },
+    {
+      "value": "de-CH",
+      "label": "German (Switzerland)"
+    },
+    {
+      "value": "hi",
+      "label": "Hindi"
+    },
+    {
+      "value": "it",
+      "label": "Italian"
+    },
+    {
+      "value": "pt",
+      "label": "Portuguese"
+    },
+    {
+      "value": "pt-BR",
+      "label": "Portuguese (Brazil)"
+    },
+    {
+      "value": "pt-PT",
+      "label": "Portuguese (Portugal)"
+    },
+    {
+      "value": "nl",
+      "label": "Dutch"
+    },
+    {
+      "value": "ja",
+      "label": "Japanese"
+    },
+    {
+      "value": "ko",
+      "label": "Korean"
+    },
+    {
+      "value": "zh",
+      "label": "Chinese"
+    },
+    {
+      "value": "zh-CN",
+      "label": "Simplified Chinese (China)"
+    },
+    {
+      "value": "zh-TW",
+      "label": "Traditional Chinese (Taiwan)"
+    },
+    {
+      "value": "ru",
+      "label": "Russian"
+    },
+    {
+      "value": "pl",
+      "label": "Polish"
+    },
+    {
+      "value": "tr",
+      "label": "Turkish"
+    },
+    {
+      "value": "ar",
+      "label": "Arabic"
+    },
+    {
+      "value": "id",
+      "label": "Indonesian"
+    },
+    {
+      "value": "uk",
+      "label": "Ukrainian"
+    },
+    {
+      "value": "vi",
+      "label": "Vietnamese"
+    },
+    {
+      "value": "sv",
+      "label": "Swedish"
+    },
+    {
+      "value": "da",
+      "label": "Danish"
+    },
+    {
+      "value": "no",
+      "label": "Norwegian"
+    },
+    {
+      "value": "fi",
+      "label": "Finnish"
+    },
+    {
+      "value": "el",
+      "label": "Greek"
+    },
+    {
+      "value": "cs",
+      "label": "Czech"
+    },
+    {
+      "value": "ro",
+      "label": "Romanian"
+    },
+    {
+      "value": "hu",
+      "label": "Hungarian"
+    },
+    {
+      "value": "ta",
+      "label": "Tamil"
+    },
+    {
+      "value": "te",
+      "label": "Telugu"
+    },
+    {
+      "value": "mr",
+      "label": "Marathi"
+    },
+    {
+      "value": "bn",
+      "label": "Bengali"
+    }
+  ],
+  "noise_cancellation": [
+    {
+      "value": "none",
+      "label": "None"
+    },
+    {
+      "value": "quail-vf-s",
+      "label": "Quail VF S"
+    },
+    {
+      "value": "quail-vf-l",
+      "label": "Quail VF L"
+    },
+    {
+      "value": "quail-l",
+      "label": "Quail L"
+    },
+    {
+      "value": "krisp-bvc",
+      "label": "Krisp BVC"
+    },
+    {
+      "value": "krisp-bvc-telephony",
+      "label": "Krisp BVC Telephony"
+    },
+    {
+      "value": "krisp-nc",
+      "label": "Krisp NC"
+    }
+  ],
+  "background_audio": [
+    {
+      "value": "none",
+      "label": "None"
+    },
+    {
+      "value": "office-ambience.ogg",
+      "label": "Office"
+    },
+    {
+      "value": "city-ambience.ogg",
+      "label": "City"
+    },
+    {
+      "value": "forest-ambience.ogg",
+      "label": "Forest"
+    },
+    {
+      "value": "crowded-room.ogg",
+      "label": "Crowded Room"
+    }
+  ],
+  "reasoning_effort": [
+    {
+      "value": "none",
+      "label": "None"
+    },
+    {
+      "value": "low",
+      "label": "Low"
+    },
+    {
+      "value": "medium",
+      "label": "Medium"
+    },
+    {
+      "value": "high",
+      "label": "High"
+    },
+    {
+      "value": "xhigh",
+      "label": "Extra high"
+    }
+  ]
+}

@@ -88,12 +88,18 @@ function createParticipantToken(
 
   // EXPLICIT DISPATCH: dispatch the named agent and pass the config as metadata.
   // The agent reads ctx.job.metadata and builds its session from it.
+  //
+  // We also set the same config as the ROOM metadata, so it shows up in the
+  // LiveKit Cloud "Sessions" view for this call — making each call's config
+  // observable inside LiveKit.
+  const configJson = config ? JSON.stringify(config) : "";
   if (AGENT_NAME) {
     at.roomConfig = new RoomConfiguration({
+      metadata: configJson,
       agents: [
         new RoomAgentDispatch({
           agentName: AGENT_NAME,
-          metadata: config ? JSON.stringify(config) : "",
+          metadata: configJson,
         }),
       ],
     });

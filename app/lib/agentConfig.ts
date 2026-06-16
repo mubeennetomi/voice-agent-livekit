@@ -1,8 +1,18 @@
 // Shared agent configuration shape. The browser builds this from the form, the
 // token route stuffs it into the agent dispatch metadata, and the Python agent
 // reads it back to build the session. Keep it JSON-serializable.
+//
+// The dropdown option lists are derived from livekitOptions.json, which was
+// extracted from the LiveKit account's own Agent Builder UI (the source of
+// truth for which model/voice/language ids this project actually supports).
+
+import options from "./livekitOptions.json";
 
 export type AgentConfig = {
+  // Setup / general (integration + pipeline are presentational for now)
+  integration: string;
+  pipelineMode: string; // "cascaded" | "realtime" (realtime not yet wired)
+
   // Conversation
   instructions: string;
   welcomeMessage: string;
@@ -12,12 +22,77 @@ export type AgentConfig = {
   ttsModel: string;
   ttsVoice: string;
   llmModel: string;
-  reasoningEffort: "" | "low" | "medium" | "high"; // "" = provider default
+  reasoningEffort: string; // "none" | "low" | "medium" | "high" | "xhigh"
   sttModel: string;
   sttLanguage: string;
-  noiseCancellation: string; // "none" | ai_coustics EnhancerModel name
-  backgroundAudio: string; // "none" | "office"
+  noiseCancellation: string;
+  backgroundAudio: string;
 };
+
+export type Option = { value: string; label: string };
+export type ModelGroup = { group: string; options: Option[] };
+
+const PROVIDER_LABELS: Record<string, string> = {
+  openai: "OpenAI",
+  google: "Google Gemini",
+  "deepseek-ai": "DeepSeek",
+  moonshotai: "Moonshot AI",
+  xai: "xAI",
+  deepgram: "Deepgram",
+  assemblyai: "AssemblyAI",
+  cartesia: "Cartesia",
+  elevenlabs: "ElevenLabs",
+  speechmatics: "Speechmatics",
+  inworld: "Inworld",
+  rime: "Rime",
+};
+
+function prettyProvider(prefix: string): string {
+  return PROVIDER_LABELS[prefix] ?? prefix;
+}
+
+// Group a flat [{value,label}] list into provider <optgroup>s, preserving the
+// order each provider first appears.
+function groupByProvider(list: Option[]): ModelGroup[] {
+  const groups: ModelGroup[] = [];
+  const index = new Map<string, ModelGroup>();
+  for (const opt of list) {
+    const prefix = opt.value.split("/")[0];
+    let group = index.get(prefix);
+    if (!group) {
+      group = { group: prettyProvider(prefix), options: [] };
+      index.set(prefix, group);
+      groups.push(group);
+    }
+    group.options.push(opt);
+  }
+  return groups;
+}
+
+export const TTS_MODELS: ModelGroup[] = groupByProvider(options.tts_models);
+export const LLM_MODELS: ModelGroup[] = groupByProvider(options.llm_models);
+export const STT_MODELS: ModelGroup[] = groupByProvider(options.stt_models);
+
+export const VOICES_BY_PROVIDER: Record<string, Option[]> =
+  options.voices_by_provider;
+
+export const STT_LANGUAGES: Option[] = options.languages;
+export const NOISE_CANCELLATION: Option[] = options.noise_cancellation;
+export const BACKGROUND_AUDIO: Option[] = options.background_audio;
+export const REASONING_EFFORTS: Option[] = options.reasoning_effort;
+
+// Setup: dummy integrations — all currently point at the same settings.
+export const INTEGRATIONS: Option[] = [
+  { value: "netomi-voice-v1", label: "Netomi Voice Integration v1" },
+  { value: "netomi-voice-v2", label: "Netomi Voice Integration v2" },
+  { value: "netomi-voice-v3", label: "Netomi Voice Integration v3" },
+];
+
+// General: pipeline architecture. Realtime is a placeholder for now.
+export const PIPELINE_MODES: Option[] = [
+  { value: "cascaded", label: "STT · LLM · TTS integration" },
+  { value: "realtime", label: "Realtime integration (coming soon)" },
+];
 
 export const DEFAULT_INSTRUCTIONS = `You are a helpful, concise customer support voice agent for {Company}. Your job is to understand the customer's issue, gather the minimum necessary context, and either resolve the issue clearly or guide the customer to the right next step.
 
@@ -47,6 +122,8 @@ export const DEFAULT_WELCOME =
   "Hi, thanks for calling {Company} support. I can help with questions, troubleshooting, or account issues. What are you trying to do today?";
 
 export const defaultAgentConfig: AgentConfig = {
+  integration: "netomi-voice-v1",
+  pipelineMode: "cascaded",
   instructions: DEFAULT_INSTRUCTIONS,
   welcomeMessage: DEFAULT_WELCOME,
   allowInterruptions: true,
@@ -56,34 +133,6 @@ export const defaultAgentConfig: AgentConfig = {
   reasoningEffort: "low",
   sttModel: "deepgram/nova-3",
   sttLanguage: "en",
-  noiseCancellation: "QUAIL_VF_L",
+  noiseCancellation: "quail-vf-l",
   backgroundAudio: "none",
 };
-
-// Suggestions for the form. Model fields are free-text (any valid LiveKit
-// Inference id works) with these as a datalist; the rest are fixed selects.
-export const TTS_MODELS = ["cartesia/sonic-3", "cartesia/sonic-2"];
-export const TTS_VOICES = [
-  { id: "9626c31c-bec5-4cca-baa8-f8ba9e84c8bc", label: "Jacqueline (en-US)" },
-];
-export const LLM_MODELS = [
-  "openai/gpt-5.2-chat-latest",
-  "openai/gpt-4.1",
-  "openai/gpt-4.1-mini",
-];
-export const REASONING_EFFORTS: AgentConfig["reasoningEffort"][] = [
-  "",
-  "low",
-  "medium",
-  "high",
-];
-export const STT_MODELS = ["deepgram/nova-3", "deepgram/nova-2"];
-export const STT_LANGUAGES = ["en", "es", "fr", "de", "hi", "multi"];
-export const NOISE_CANCELLATION = [
-  { value: "none", label: "None" },
-  { value: "QUAIL_VF_L", label: "Quail VF L" },
-];
-export const BACKGROUND_AUDIO = [
-  { value: "none", label: "None" },
-  { value: "office", label: "Office ambience" },
-];

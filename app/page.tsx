@@ -1,20 +1,76 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { LiveKitRoom, RoomAudioRenderer } from "@livekit/components-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ConnectionDetails } from "./api/connection-details/route";
-import { VoiceAssistant } from "./components/VoiceAssistant";
-import { CallSummary } from "./components/CallSummary";
-import { ConfigForm } from "./components/ConfigForm";
 import { type AgentConfig, defaultAgentConfig } from "./lib/agentConfig";
+import { SECTION_GROUPS } from "./lib/sections";
+import { NavHeader, SideNav, WorkHead } from "./components/studio/Shell";
+import { SectionRail } from "./components/studio/SectionRail";
+import { SectionEditor } from "./components/studio/SectionEditor";
+import { TestPanel } from "./components/studio/TestPanel";
 
 export default function Page() {
-  const [connectionDetails, setConnectionDetails] =
-    useState<ConnectionDetails | null>(null);
+  // config: live edits (values) vs last-saved snapshot (saved)
+  const [values, setValues] = useState<AgentConfig>(defaultAgentConfig);
+  const [saved, setSaved] = useState<AgentConfig>(defaultAgentConfig);
+
+  // shell / navigation
+  const [navCollapsed, setNavCollapsed] = useState(false);
+  const [railCollapsed, setRailCollapsed] = useState(false);
+  const [activeSection, setActiveSection] = useState("integration");
+
+  // call lifecycle
+  const [connectionDetails, setConnectionDetails] = useState<ConnectionDetails | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [endedRoom, setEndedRoom] = useState<string | null>(null);
-  const [config, setConfig] = useState<AgentConfig>(defaultAgentConfig);
+
+  // load + persist config
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("agentConfig");
+      if (raw) {
+        const merged = { ...defaultAgentConfig, ...JSON.parse(raw) };
+        setValues(merged);
+        setSaved(merged);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const setVal = useCallback((k: keyof AgentConfig, v: AgentConfig[keyof AgentConfig]) => {
+    setValues((s) => {
+      const next = { ...s, [k]: v };
+      // changing TTS provider invalidates the voice id
+      if (k === "ttsModel") {
+        const oldP = s.ttsModel.split("/")[0];
+        const newP = String(v).split("/")[0];
+        if (oldP !== newP) next.ttsVoice = "";
+      }
+      return next;
+    });
+  }, []);
+
+  const dirty = useMemo(
+    () => JSON.stringify(values) !== JSON.stringify(saved),
+    [values, saved],
+  );
+
+  const save = useCallback(() => {
+    setSaved(values);
+    try { localStorage.setItem("agentConfig", JSON.stringify(values)); } catch { /* ignore */ }
+  }, [values]);
+
+  const discard = useCallback(() => setValues(saved), [saved]);
+
+  // resolve active section + its group label
+  const { section, eyebrow } = useMemo(() => {
+    for (const g of SECTION_GROUPS) {
+      const found = g.items.find((it) => it.id === activeSection);
+      if (found) return { section: found, eyebrow: g.group };
+    }
+    const first = SECTION_GROUPS[0].items[0];
+    return { section: first, eyebrow: SECTION_GROUPS[0].group };
+  }, [activeSection]);
 
   const connect = useCallback(async () => {
     setConnecting(true);
@@ -24,7 +80,7 @@ export default function Page() {
       const res = await fetch("/api/connection-details", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ config }),
+        body: JSON.stringify({ config: values }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to get token");
@@ -34,61 +90,54 @@ export default function Page() {
     } finally {
       setConnecting(false);
     }
-  }, [config]);
+  }, [values]);
 
-  const handleDisconnected = useCallback(() => {
-    setConnectionDetails((current) => {
-      if (current) setEndedRoom(current.roomName);
+  const onDisconnected = useCallback(() => {
+    setConnectionDetails((cur) => {
+      if (cur) setEndedRoom(cur.roomName);
       return null;
     });
   }, []);
 
-  // In a call.
-  if (connectionDetails) {
-    return (
-      <main className="page">
-        <LiveKitRoom
-          token={connectionDetails.participantToken}
-          serverUrl={connectionDetails.serverUrl}
-          connect={true}
-          audio={true}
-          video={false}
-          onDisconnected={handleDisconnected}
-          onError={(e) => setError(e.message)}
-        >
-          <VoiceAssistant onLeave={handleDisconnected} />
-          {/* Plays all audio tracks coming from the room (i.e. the agent). */}
-          <RoomAudioRenderer />
-        </LiveKitRoom>
-      </main>
-    );
-  }
-
-  // Call just ended — show metrics fetched from the server.
-  if (endedRoom) {
-    return (
-      <main className="page">
-        <CallSummary room={endedRoom} onRestart={connect} />
-        {error && <p className="error">{error}</p>}
-      </main>
-    );
-  }
-
-  // Initial screen — configure the agent, then start.
   return (
-    <main className="page page-wide">
-      <h1 className="title">🎙️ LiveKit Voice Agent Demo</h1>
-      <p className="subtitle">
-        Configure the agent below, then start a live call. Your microphone will
-        be used, so allow access when prompted.
-      </p>
-      <ConfigForm
-        config={config}
-        onChange={setConfig}
-        onStart={connect}
-        connecting={connecting}
-      />
-      {error && <p className="error">{error}</p>}
-    </main>
+    <div className="app" data-nav-collapsed={navCollapsed}>
+      <div className="app__header">
+        <NavHeader onToggleNav={() => setNavCollapsed((v) => !v)} />
+      </div>
+      <div className="app__nav"><SideNav /></div>
+      <div className="app__main">
+        <WorkHead />
+        <div className="panes">
+          <SectionRail
+            groups={SECTION_GROUPS}
+            active={activeSection}
+            onSelect={setActiveSection}
+            collapsed={railCollapsed}
+            onToggleCollapse={() => setRailCollapsed((v) => !v)}
+          />
+          <div className="editor">
+            <SectionEditor section={section} eyebrow={eyebrow} values={values} setVal={setVal} />
+          </div>
+          <TestPanel
+            connectionDetails={connectionDetails}
+            connecting={connecting}
+            error={error}
+            endedRoom={endedRoom}
+            onStart={connect}
+            onDisconnected={onDisconnected}
+          />
+        </div>
+
+        <div className="savebar">
+          <span className="savebar__dot" data-clean={!dirty} />
+          <span className="savebar__txt">
+            {dirty ? <>Unsaved changes <span>· applied to the next call you start</span></> : <span>All changes saved</span>}
+          </span>
+          <div className="savebar__spacer" />
+          <button className="btn btn--ghost" disabled={!dirty} onClick={discard}>Discard</button>
+          <button className="btn btn--primary" disabled={!dirty} onClick={save}>Save changes</button>
+        </div>
+      </div>
+    </div>
   );
 }

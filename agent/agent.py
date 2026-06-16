@@ -115,8 +115,10 @@ class ConfiguredAgent(Agent):
 
     async def on_enter(self):
         if self._welcome:
-            await self.session.generate_reply(
-                instructions=self._welcome,
+            # Speak the welcome message verbatim (like the playground), instead
+            # of asking the LLM to generate a greeting from it.
+            await self.session.say(
+                self._welcome,
                 allow_interruptions=self._allow_interruptions,
             )
 
@@ -141,10 +143,74 @@ def _parse_config(metadata: str | None) -> dict:
         return {}
 
 
+def _resolve_noise_cancellation(value: str):
+    """Map a UI value (quail-* via ai_coustics, krisp-* via the Krisp plugin)
+    to a noise-cancellation object, or None."""
+    if not value or value == "none":
+        return None
+    if value.startswith("quail"):
+        # quail-vf-l -> QUAIL_VF_L
+        name = value.upper().replace("-", "_")
+        model = getattr(ai_coustics.EnhancerModel, name, None)
+        if model is None:
+            logger.warning(f"unknown ai_coustics model '{value}'")
+            return None
+        return ai_coustics.audio_enhancement(model=model)
+    if value.startswith("krisp"):
+        try:
+            from livekit.plugins import noise_cancellation as nc
+        except Exception as e:
+            logger.warning(f"Krisp noise cancellation plugin not installed: {e}")
+            return None
+        factory = {
+            "krisp-bvc": getattr(nc, "BVC", None),
+            "krisp-bvc-telephony": getattr(nc, "BVCTelephony", None),
+            "krisp-nc": getattr(nc, "NC", None),
+        }.get(value)
+        if factory is None:
+            logger.warning(f"unknown Krisp model '{value}'")
+            return None
+        return factory()
+    logger.warning(f"unknown noise cancellation '{value}'")
+    return None
+
+
+# UI background-audio value -> BuiltinAudioClip member name.
+_BG_CLIPS = {
+    "office-ambience.ogg": "OFFICE_AMBIENCE",
+    "city-ambience.ogg": "CITY_AMBIENCE",
+    "forest-ambience.ogg": "FOREST_AMBIENCE",
+    "crowded-room.ogg": "CROWDED_ROOM",
+}
+
+
+def _resolve_background_audio(value: str):
+    if not value or value == "none":
+        return None
+    try:
+        from livekit.agents import (
+            AudioConfig,
+            BackgroundAudioPlayer,
+            BuiltinAudioClip,
+        )
+    except Exception as e:
+        logger.warning(f"background audio unavailable: {e}")
+        return None
+    clip_name = _BG_CLIPS.get(value)
+    if clip_name is None:
+        logger.warning(
+            f"background audio '{value}' has no local built-in clip; skipping"
+        )
+        return None
+    clip = getattr(BuiltinAudioClip, clip_name, None)
+    if clip is None:
+        return None
+    return BackgroundAudioPlayer(ambient_sound=AudioConfig(clip, volume=0.8))
+
+
 @server.rtc_session(agent_name="netomi-first-agent")
 async def entrypoint(ctx: JobContext):
     cfg = _parse_config(ctx.job.metadata)
-    logger.info(f"starting session with config keys: {list(cfg.keys())}")
 
     instructions = cfg.get("instructions") or DEFAULT_INSTRUCTIONS
     welcome = cfg.get("welcomeMessage") or DEFAULT_WELCOME
@@ -160,17 +226,24 @@ async def entrypoint(ctx: JobContext):
     background_audio = cfg.get("backgroundAudio") or "none"
 
     # LLM (only pass reasoning_effort when set — not every model supports it).
-    if reasoning_effort:
+    if reasoning_effort and reasoning_effort != "none":
         llm = inference.LLM(
             model=llm_model, extra_kwargs={"reasoning_effort": reasoning_effort}
         )
     else:
         llm = inference.LLM(model=llm_model)
 
+    # Voice is provider-specific; omit it when blank to use the provider default.
+    tts = (
+        inference.TTS(model=tts_model, voice=tts_voice, language="en")
+        if tts_voice
+        else inference.TTS(model=tts_model, language="en")
+    )
+
     session = AgentSession(
         stt=inference.STT(model=stt_model, language=stt_language),
         llm=llm,
-        tts=inference.TTS(model=tts_model, voice=tts_voice, language="en"),
+        tts=tts,
         turn_handling=TurnHandlingOptions(turn_detection=MultilingualModel()),
         vad=ctx.proc.userdata["vad"],
         preemptive_generation=True,
@@ -182,44 +255,45 @@ async def entrypoint(ctx: JobContext):
         metrics.log_metrics(ev.metrics)
         asyncio.create_task(_post_samples(ctx.room.name, _samples_for(ev.metrics)))
 
-    # Noise cancellation (ai_coustics enhancer), resolved from config.
-    audio_input = None
-    if noise_cancellation and noise_cancellation != "none":
-        model = getattr(ai_coustics.EnhancerModel, noise_cancellation, None)
-        if model is not None:
-            audio_input = room_io.AudioInputOptions(
-                noise_cancellation=ai_coustics.audio_enhancement(model=model)
-            )
-        else:
-            logger.warning(f"unknown noise cancellation '{noise_cancellation}'")
-
+    # Noise cancellation (Quail via ai_coustics, Krisp via plugin), from config.
+    nc = _resolve_noise_cancellation(noise_cancellation)
     room_options = (
-        room_io.RoomOptions(audio_input=audio_input)
-        if audio_input
+        room_io.RoomOptions(audio_input=room_io.AudioInputOptions(noise_cancellation=nc))
+        if nc is not None
         else room_io.RoomOptions()
     )
 
     # Optional background audio.
-    bg_player = None
-    if background_audio == "office":
-        try:
-            from livekit.agents import (
-                AudioConfig,
-                BackgroundAudioPlayer,
-                BuiltinAudioClip,
-            )
+    bg_player = _resolve_background_audio(background_audio)
 
-            bg_player = BackgroundAudioPlayer(
-                ambient_sound=AudioConfig(BuiltinAudioClip.OFFICE_AMBIENCE, volume=0.8)
-            )
-        except Exception as e:
-            logger.warning(f"background audio unavailable: {e}")
+    # Observability: a readable summary of what THIS call used. Shows up as the
+    # agent participant's attributes (LiveKit "Participants" view) and in logs.
+    attributes = {
+        "cfg.llm": llm_model,
+        "cfg.reasoning_effort": reasoning_effort or "default",
+        "cfg.stt": f"{stt_model} ({stt_language})",
+        "cfg.tts": f"{tts_model} / {tts_voice}",
+        "cfg.noise_cancellation": noise_cancellation,
+        "cfg.background_audio": background_audio,
+        "cfg.allow_interruptions": str(allow_interruptions),
+    }
+    logger.info(f"resolved agent config for {ctx.room.name}: {json.dumps(attributes)}")
+    logger.info(
+        f"instructions ({len(instructions)} chars): {instructions[:200]!r}..."
+    )
+    logger.info(f"welcome message: {welcome!r}")
 
     await session.start(
         agent=ConfiguredAgent(instructions, welcome, allow_interruptions),
         room=ctx.room,
         room_options=room_options,
     )
+
+    # Set after start so the agent participant is connected.
+    try:
+        await ctx.room.local_participant.set_attributes(attributes)
+    except Exception as e:
+        logger.warning(f"could not set participant attributes: {e}")
 
     if bg_player is not None:
         try:
