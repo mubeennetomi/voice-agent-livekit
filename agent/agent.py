@@ -61,6 +61,10 @@ METRICS_ENDPOINT = os.environ.get(
 )
 METRICS_INGEST_TOKEN = os.environ.get("METRICS_INGEST_TOKEN", "")
 
+# Agent name the worker registers under. Must match the web app's
+# LIVEKIT_AGENT_NAME so explicit dispatch reaches this worker.
+AGENT_NAME = os.environ.get("AGENT_NAME", "netomi-first-agent")
+
 
 async def _post_samples(room: str, samples: list[dict]) -> None:
     if not samples:
@@ -208,7 +212,7 @@ def _resolve_background_audio(value: str):
     return BackgroundAudioPlayer(ambient_sound=AudioConfig(clip, volume=0.8))
 
 
-@server.rtc_session(agent_name="netomi-first-agent")
+@server.rtc_session(agent_name=AGENT_NAME)
 async def entrypoint(ctx: JobContext):
     cfg = _parse_config(ctx.job.metadata)
 

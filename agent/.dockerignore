@@ -1,0 +1,9 @@
+.venv
+.env
+.env.local
+__pycache__
+*.pyc
+probe_models.py
+README.md
+DEPLOY.md
+livekit.toml

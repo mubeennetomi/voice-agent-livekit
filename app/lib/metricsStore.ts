@@ -2,12 +2,17 @@
 // across serverless instances on Vercel; falls back to in-process memory for
 // local dev (single Node server).
 
-import { kv } from "@vercel/kv";
+import { createClient } from "@vercel/kv";
 
 export type Sample = { name: string; value: number };
 
-// Vercel injects KV_REST_API_URL when a KV store is connected to the project.
-const USE_KV = !!process.env.KV_REST_API_URL;
+// Support both naming schemes: Vercel KV (KV_REST_API_*) and the Upstash
+// Marketplace integration (UPSTASH_REDIS_REST_*).
+const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+const USE_KV = !!(KV_URL && KV_TOKEN);
+const kv = USE_KV ? createClient({ url: KV_URL!, token: KV_TOKEN! }) : null;
+
 const TTL_SECONDS = 60 * 60; // keep a room's metrics for an hour
 const keyOf = (room: string) => `metrics:${room}`;
 
@@ -24,7 +29,7 @@ function clean(samples: Sample[]): Sample[] {
 export async function addSamples(room: string, samples: Sample[]): Promise<void> {
   const valid = clean(samples);
   if (!valid.length) return;
-  if (USE_KV) {
+  if (kv) {
     const key = keyOf(room);
     await kv.rpush(key, ...valid);
     await kv.expire(key, TTL_SECONDS);
@@ -39,7 +44,7 @@ export type MetricAggregate = { count: number; avg: number; min: number; max: nu
 export type RoomAggregate = { room: string; turns: number; metrics: Record<string, MetricAggregate> };
 
 export async function getAggregate(room: string): Promise<RoomAggregate> {
-  const samples: Sample[] = USE_KV
+  const samples: Sample[] = kv
     ? ((await kv.lrange<Sample>(keyOf(room), 0, -1)) ?? [])
     : (mem.get(room) ?? []);
 
