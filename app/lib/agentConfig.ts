@@ -135,7 +135,7 @@ Conversation outline:
 5. Summarize the next step if not resolved.`;
 
 export const DEFAULT_WELCOME =
-  "Hi, thanks for calling {Company} support. I can help with questions, troubleshooting, or account issues. What are you trying to do today?";
+  "Hi, thanks for calling {Company} support. How can I help you today?";
 
 export const defaultAgentConfig: AgentConfig = {
   integration: "netomi-voice-v1",
@@ -143,13 +143,13 @@ export const defaultAgentConfig: AgentConfig = {
   instructions: DEFAULT_INSTRUCTIONS,
   welcomeMessage: DEFAULT_WELCOME,
   allowInterruptions: true,
-  minInterruptionDuration: "0.5",
+  minInterruptionDuration: "0.3",
   minInterruptionWords: "0",
   ttsModel: "cartesia/sonic-3",
   ttsVoice: "9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
   llmModel: "openai/gpt-5.2-chat-latest",
   reasoningEffort: "low",
-  sttModel: "deepgram/nova-3",
+  sttModel: "cartesia/ink-whisper",
   sttLanguage: "en",
   noiseCancellation: "quail-vf-l",
   backgroundAudio: "none",

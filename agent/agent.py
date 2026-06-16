@@ -50,8 +50,7 @@ Rules:
 - If you cannot complete the request, explain what the next best action is."""
 
 DEFAULT_WELCOME = (
-    "Hi, thanks for calling {Company} support. I can help with questions, "
-    "troubleshooting, or account issues. What are you trying to do today?"
+    "Hi, thanks for calling {Company} support. How can I help you today?"
 )
 
 
@@ -220,9 +219,9 @@ async def entrypoint(ctx: JobContext):
     welcome = cfg.get("welcomeMessage") or DEFAULT_WELCOME
     allow_interruptions = cfg.get("allowInterruptions", True)
     try:
-        min_interruption_duration = float(cfg.get("minInterruptionDuration") or 0.5)
+        min_interruption_duration = float(cfg.get("minInterruptionDuration") or 0.3)
     except (TypeError, ValueError):
-        min_interruption_duration = 0.5
+        min_interruption_duration = 0.3
     try:
         min_interruption_words = int(cfg.get("minInterruptionWords") or 0)
     except (TypeError, ValueError):
@@ -232,7 +231,7 @@ async def entrypoint(ctx: JobContext):
     tts_voice = cfg.get("ttsVoice") or "9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"
     llm_model = cfg.get("llmModel") or "openai/gpt-5.2-chat-latest"
     reasoning_effort = cfg.get("reasoningEffort") or ""
-    stt_model = cfg.get("sttModel") or "deepgram/nova-3"
+    stt_model = cfg.get("sttModel") or "cartesia/ink-whisper"
     stt_language = cfg.get("sttLanguage") or "en"
     noise_cancellation = cfg.get("noiseCancellation") or "none"
     background_audio = cfg.get("backgroundAudio") or "none"
