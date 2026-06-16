@@ -281,18 +281,18 @@ textarea.inp { height: auto; padding: 9px 12px; line-height: 1.55; resize: verti
 .tline:not(.agent) .bubble { background: #fff; color: var(--foreground); border: 1px solid var(--steel-blue-60); border-bottom-right-radius: 4px; }
 
 /* readout (metrics) */
-.readout { background: var(--steel-blue-15); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-top: 14px; font-family: var(--font-mono); }
-.rr-sec { color: var(--foreground); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 9px; }
-.rr-div { height: 1px; background: var(--border); margin: 15px 0; }
-.rr-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 3px 0; line-height: 1.5; position: relative; }
-.rr-row--indent { padding-left: 16px; }
-.rr-row--indent::before { content: ""; position: absolute; left: 2px; top: 4px; bottom: 4px; width: 2px; background: var(--steel-blue-60); border-radius: 1px; }
-.rr-k { color: var(--steel-light); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
-.rr-v { color: var(--turquoise-ultradark); font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; text-align: right; overflow: hidden; text-overflow: ellipsis; }
-.rr-v--on { color: var(--turquoise-dark); }
-.rr-v--blank { color: var(--steel-ultralight); font-weight: 600; }
-.rr-row--total .rr-k { color: var(--foreground); font-weight: 700; }
-.rr-row--total .rr-v { color: var(--foreground); font-size: 13.5px; }
+.readout { padding: 6px 2px; }
+.rr-sec { color: var(--steel-light); font-size: 13.5px; font-weight: 600; margin-bottom: 6px; }
+.rr-div { height: 1px; background: var(--border); margin: 18px 0; }
+.rr-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 8px 0; line-height: 1.4; position: relative; }
+.rr-row--indent { padding-left: 22px; }
+.rr-row--indent::before { content: "–"; position: absolute; left: 4px; top: 8px; color: var(--steel-light); }
+.rr-k { color: var(--foreground); font-size: 14.5px; font-weight: 400; white-space: nowrap; }
+.rr-row--indent .rr-k { color: var(--steel-regular); }
+.rr-v { color: var(--foreground); font-size: 14.5px; font-weight: 700; text-align: right; overflow: hidden; text-overflow: ellipsis; }
+.rr-v--on { color: var(--foreground); }
+.rr-v--blank { color: var(--steel-light); font-weight: 400; }
+.rr-row--total .rr-k { font-weight: 600; }
 
 .tp-error { color: var(--red-dark); font-size: 13px; margin-top: 10px; }
 .lk-audio-bar { background: var(--vc-accent); }
