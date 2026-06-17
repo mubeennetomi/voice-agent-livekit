@@ -28,6 +28,13 @@ const PATHS: Record<string, React.ReactNode> = {
   gauge: (<><path d="M4 18a8 8 0 1 1 16 0" /><line x1="12" y1="14" x2="16" y2="10" /></>),
   doc: (<><path d="M7 3h7l4 4v14H7z" /><polyline points="14 3 14 7 18 7" /><line x1="9.5" y1="12" x2="15" y2="12" /><line x1="9.5" y1="16" x2="15" y2="16" /></>),
   hand: (<><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11" /><path d="M12 11V4.5a1.5 1.5 0 0 1 3 0V11" /><path d="M15 11V6.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-1a6 6 0 0 1-5.2-3l-2-3.4a1.5 1.5 0 0 1 2.4-1.8L9 12" /></>),
+  refresh: (<><path d="M20 11a8 8 0 1 0-1.5 5" /><polyline points="20 4 20 11 13 11" /></>),
+  phoneoff: (<><path d="M5 4h3l2 5-2 1a11 11 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" /><line x1="2" y1="2" x2="22" y2="22" /></>),
+  play: <path d="M7 5l12 7-12 7z" />,
+  arrowLeft: (<><line x1="19" y1="12" x2="5" y2="12" /><polyline points="11 6 5 12 11 18" /></>),
+  arrowRight: (<><line x1="5" y1="12" x2="19" y2="12" /><polyline points="13 6 19 12 13 18" /></>),
+  chartBar: (<><line x1="5" y1="13" x2="5" y2="19" /><line x1="12" y1="9" x2="12" y2="19" /><line x1="19" y1="5" x2="19" y2="19" /></>),
+  sparkles: <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />,
 };
 
 export function Icon({ name, size = 18 }: { name: string; size?: number }) {
